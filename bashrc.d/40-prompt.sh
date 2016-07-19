@@ -57,6 +57,10 @@ function render_prompt {
     ps1=""
 
     if gitroot=$(git rev-parse --show-toplevel 2>/dev/null); then
+        if ( cd $gitroot/../ && git rev-parse 2>/dev/null); then
+            ps1="$(ps_color 0)$(basename $(cd $gitroot/../ && git rev-parse --show-toplevel 2>/dev/null))$(ps_color "1;30")/.../$(ps_color 0)"
+        fi
+
         rootname="$(basename $gitroot)"
         rel=$(python -c "import os.path; print os.path.relpath('"$(pwd)"', '"$gitroot"')")
         if [[ "$rel" == "." ]]; then 
