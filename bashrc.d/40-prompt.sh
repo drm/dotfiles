@@ -39,6 +39,7 @@ function render_prompt {
     local branch
     local remote
     local gitroot
+    local rootname
     local wd
     local status
     local num_changed
@@ -49,12 +50,19 @@ function render_prompt {
 
     if branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null); then
         gitroot=$(git rev-parse --show-toplevel)
-        wd="$(basename $gitroot)"
+        rootname="$(basename $gitroot)"
         rel=$(python -c "import os.path; print os.path.relpath('"$(pwd)"', '"$gitroot"')")
-        if [[ "$rel" != "." ]]; then 
-            wd="$wd/$rel"
+        if [[ "$rel" == "." ]]; then 
+            wd="$rootname"
+        else
+            wd="$rootname/$rel"
         fi
-        ps1="$ps1$(ps_color 33)$wd: "
+
+        if git clean -xnd `pwd` | grep 'Would remove \./' > /dev/null; then
+            ps1="$ps1$(ps_color 33)$rootname/(!$(ps_color "1;31")$rel$(ps_color "0;33"))"
+        else
+            ps1="$ps1$(ps_color 33)$wd: "
+        fi
 
         status=$(git status --porcelain)
         num_changed=$(git status --porcelain | egrep -v '^[AMD]' | wc -l)
