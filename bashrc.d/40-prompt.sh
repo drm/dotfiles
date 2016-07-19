@@ -63,15 +63,17 @@ function render_prompt {
             wd="$rootname/$rel"
         fi
 
-        if git clean -xnd `pwd` | grep 'Would remove \./' > /dev/null; then
-            ps1="$ps1$(ps_color 33)$rootname/(!$(ps_color "1;31")$rel$(ps_color "0;33"))"
+        if [[ "$(git ls-files)" == "" ]]; then
+            ps1="$ps1$(ps_color 33)$rootname/$(ps_color "1;31")$rel$(ps_color "0;33"): "
         else
             ps1="$ps1$(ps_color 33)$wd: "
         fi
 
-        status=$(git status --porcelain)
-        num_changed=$(git status --porcelain | egrep -v '^[AMDR]' | wc -l)
-        num_staged=$(git status --porcelain | egrep '^[AMDR]' | wc -l)
+        declare $(git status --porcelain | \
+            awk 'BEGIN { num_changed=0; num_staged=0; FS="\n"} 
+                 { if ($1 ~ /^[AMDR]/) num_staged++; else num_changed++; } 
+                 END { print "num_changed="num_changed" num_staged="num_staged }'; \
+        )
 
         if remote=$(git config branch.${branch}.remote); then
             tracking_branch="${remote}/${branch}"
@@ -81,10 +83,10 @@ function render_prompt {
 
         if [[ "$branch" == "HEAD" ]]; then
             ps1="$ps1$(ps_color "1;31")detached"
-        elif [[ "$status" == "" ]]; then
-            ps1="$ps1$(ps_color "1;32")✓ $branch$(ps_color 0)"
+        elif [[ $num_staged -gt 0 ]] || [[ $num_changed -gt 0 ]]; then
+            ps1="$ps1$(ps_color "1;32")${num_staged}$(ps_color 0)/$(ps_color "1;33")${num_changed} $(ps_color 36)$branch$(ps_color 0)"
         else
-            ps1="$ps1$(ps_color "1;33")${num_changed}$(ps_color 0)/$(ps_color "1;32")${num_staged} $(ps_color 36)$branch$(ps_color 0)"
+            ps1="$ps1$(ps_color "1;32")✓ $branch$(ps_color 0)"
         fi
         if [[ "$num_ahead" -gt 0 ]]; then
             ps1="$ps1(+${num_ahead})";
