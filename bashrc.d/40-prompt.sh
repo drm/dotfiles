@@ -28,12 +28,17 @@ function ps_color {
 # Examples:
 # Assuming we're in the 'src' folder of a clean project, checked out in `~/projects/foo`:
 #  
-#   foo/src: master $ _
+#   foo/src: ✓ master $ _
 #
 # Assuming we're in the 'src' folder of a project, in a branch called 'hotfix/bar', 
 # 3 commits ahead of origin, with 1 unstaged and 3 uncommitted files:
 #
-#   foo/src: 3/1 master (+2) $ _
+#   foo/src: 3/1 hotfix/bar (+2) $ _
+#
+# Assuming we're in a vendor dir of a project, where the vendor dir itself is not a git
+# checkout, but ignored from git:
+#
+#   foo/!(vendor/symfony/symfony): master $ _
 ##
 function render_prompt {
     local branch
