@@ -9,20 +9,31 @@ function ps_color {
 
 ##
 # Renders the prompt, as follows:
-# If in a git working tree, the following things are printed:
+# If in a git working tree:
 # 
-# project_dir/relative_path: [num_changes/num_staged] branch ([+num_ahead]-[num_behind]) $ 
+#   project_dir/relative_path: [num_changes/num_staged] branch ([+num_ahead]-[num_behind]) $ 
 #
-# - `project_dir`: the basename of the directory the `.git` folder is in (i.e. the root of the project)
-# - `relative_path`: the path relative to the root of the git project
-# - `num_changes`: The number of changes that are not staged yet
-# - `num_staged`: The number of changes that are staged
-# - `branch-name`: The branch the working tree is currently on.
-# - `num_ahead`: The number of commits that were not yet merged with the remote (i.e.: not yet pushed)
-# - `num_behind`: The number of commits that are not yet merged with the local (i.e.: not yet pulled)
+#   - `project_dir`: the basename of the directory the `.git` folder is in (i.e. the root of the project)
+#   - `relative_path`: the path relative to the root of the git project
+#   - `num_changes`: The number of changes that are not staged yet
+#   - `num_staged`: The number of changes that are staged
+#   - `branch-name`: The branch the working tree is currently on.
+#   - `num_ahead`: The number of commits that were not yet merged with the remote (i.e.: not yet pushed)
+#   - `num_behind`: The number of commits that are not yet merged with the local (i.e.: not yet pulled)
+# 
+# If the branch is clean (i.e., no uncommitted or unstaged changes), a checkmark is shown before the branch name
+# If the checkout is detached, a red `detached` message is shown
+# If not in a git working tree, the working dir is printed in stead of all the git info
 #
-# If the checkout is detached, a red `detached` message is chown
-# If not in a git working tree, the working dir is printed in stead of the branch info
+# Examples:
+# Assuming we're in the 'src' folder of a clean project, checked out in `~/projects/foo`:
+#  
+#   foo/src: master $ _
+#
+# Assuming we're in the 'src' folder of a project, in a branch called 'hotfix/bar', 
+# 3 commits ahead of origin, with 1 unstaged and 3 uncommitted files:
+#
+#   foo/src: 3/1 master (+2) $ _
 ##
 function render_prompt {
     local branch
