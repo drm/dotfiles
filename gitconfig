@@ -1,0 +1,26 @@
+[user]
+    name = Gerard van Helden
+    email = gerard@zicht.nl
+
+[core]
+    excludesfile = /home/gerard/.gitignore_global
+    autocrlf = input
+
+[push]
+    default = simple
+    followTags = 1
+
+[alias]
+    st = status
+    ci = commit
+
+[color "status"]
+    added = green bold
+    changed = yellow bold
+    untracked = red bold
+
+[color "diff"]
+    new = green bold
+    old = red bold
+[tag]
+    sort = version:refname

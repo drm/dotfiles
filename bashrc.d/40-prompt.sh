@@ -65,8 +65,8 @@ function render_prompt {
         fi
 
         status=$(git status --porcelain)
-        num_changed=$(git status --porcelain | egrep -v '^[AMD]' | wc -l)
-        num_staged=$(git status --porcelain | egrep '^[AMD]' | wc -l)
+        num_changed=$(git status --porcelain | egrep -v '^[AMDR]' | wc -l)
+        num_staged=$(git status --porcelain | egrep '^[AMDR]' | wc -l)
 
         if remote=$(git config branch.${branch}.remote); then
             tracking_branch="${remote}/${branch}"
