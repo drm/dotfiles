@@ -24,3 +24,6 @@
     old = red bold
 [tag]
     sort = version:refname
+
+[pull]
+    ff = only
