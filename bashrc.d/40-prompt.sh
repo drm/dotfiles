@@ -1,8 +1,29 @@
+##
+# Helper function to print a color escape code within a prompt.
+##
 function ps_color {
     local color=$1
     echo "\[\e[${color}m\]"
 }
 
+
+##
+# Renders the prompt, as follows:
+# If in a git working tree, the following things are printed:
+# 
+# project_dir/relative_path: [num_changes/num_staged] branch ([+num_ahead]-[num_behind]) $ 
+#
+# - `project_dir`: the basename of the directory the `.git` folder is in (i.e. the root of the project)
+# - `relative_path`: the path relative to the root of the git project
+# - `num_changes`: The number of changes that are not staged yet
+# - `num_staged`: The number of changes that are staged
+# - `branch-name`: The branch the working tree is currently on.
+# - `num_ahead`: The number of commits that were not yet merged with the remote (i.e.: not yet pushed)
+# - `num_behind`: The number of commits that are not yet merged with the local (i.e.: not yet pulled)
+#
+# If the checkout is detached, a red `detached` message is chown
+# If not in a git working tree, the working dir is printed in stead of the branch info
+##
 function render_prompt {
     local branch
     local remote
@@ -55,7 +76,5 @@ function render_prompt {
 }
 
 PROMPT_COMMAND="render_prompt; $PROMPT_COMMAND"
-PSCOLOR=32
-
 render_prompt
 
