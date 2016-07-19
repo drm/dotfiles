@@ -31,7 +31,7 @@ function ps_color {
 #   foo/src: ✓ master $ _
 #
 # Assuming we're in the 'src' folder of a project, in a branch called 'hotfix/bar', 
-# 3 commits ahead of origin, with 1 unstaged and 3 uncommitted files:
+# 2 commits ahead of origin, with 1 unstaged and 3 uncommitted files:
 #
 #   foo/src: 3/1 hotfix/bar (+2) $ _
 #
@@ -47,7 +47,6 @@ function render_prompt {
     local remote
     local gitroot
     local rootname
-    local wd
     local status
     local num_changed
     local num_staged
@@ -55,21 +54,20 @@ function render_prompt {
     local num_behind
     local ps1
 
-    if branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null); then
-        gitroot=$(git rev-parse --show-toplevel)
+    ps1=""
+
+    if gitroot=$(git rev-parse --show-toplevel 2>/dev/null); then
         rootname="$(basename $gitroot)"
         rel=$(python -c "import os.path; print os.path.relpath('"$(pwd)"', '"$gitroot"')")
         if [[ "$rel" == "." ]]; then 
-            wd="$rootname"
+            ps1="$ps1$rootname"
+        elif [[ "$(git ls-files)" == "" ]]; then
+            ps1="$ps1$rootname/$(ps_color "1;31")$rel"
         else
-            wd="$rootname/$rel"
+            ps1="$ps1$rootname/$(ps_color "1;0")$rel"
         fi
 
-        if [[ "$(git ls-files)" == "" ]]; then
-            ps1="$ps1$(ps_color 33)$rootname/$(ps_color "1;31")$rel$(ps_color "0;33"): "
-        else
-            ps1="$ps1$(ps_color 33)$wd: "
-        fi
+        ps1="$ps1$(ps_color "0;33"): " 
 
         declare $(git status --porcelain | \
             awk 'BEGIN { num_changed=0; num_staged=0; FS="\n"} 
@@ -77,19 +75,23 @@ function render_prompt {
                  END { print "num_changed="num_changed" num_staged="num_staged }'; \
         )
 
+        branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null); 
         if remote=$(git config branch.${branch}.remote); then
             tracking_branch="${remote}/${branch}"
-            num_ahead=$(git rev-list "${tracking_branch}..${branch}" --count)
-            num_behind=$(git rev-list "${branch}..${tracking_branch}" --count)
+            num_ahead=$(git rev-list "${tracking_branch}..${branch}" --count 2>/dev/null)
+            num_behind=$(git rev-list "${branch}..${tracking_branch}" --count 2>/dev/null)
         fi
-
         if [[ "$branch" == "HEAD" ]]; then
-            ps1="$ps1$(ps_color "1;31")detached"
+            branch="detached"
+            branch_color="1;31";
         elif [[ $num_staged -gt 0 ]] || [[ $num_changed -gt 0 ]]; then
-            ps1="$ps1$(ps_color "1;32")${num_staged}$(ps_color 0)/$(ps_color "1;33")${num_changed} $(ps_color 36)$branch$(ps_color 0)"
+            ps1="$ps1$(ps_color "1;32")${num_staged}$(ps_color 0)/$(ps_color "1;33")${num_changed} "
+            branch_color="1;36";
         else
-            ps1="$ps1$(ps_color "1;32")✓ $branch$(ps_color 0)"
-        fi
+            ps1="$ps1$(ps_color "1;32")✓ ";
+            branch_color="1;32"
+        fi;
+        ps1="$ps1$(ps_color "$branch_color")$branch$(ps_color 0)"
         if [[ "$num_ahead" -gt 0 ]]; then
             ps1="$ps1(+${num_ahead})";
         fi
@@ -97,12 +99,14 @@ function render_prompt {
             ps1="$ps1(-${num_behind})";
         fi
     else
-        ps1="$ps1$(ps_color 33)\w"
+        ps1="$ps1$(ps_color 0)\w"
     fi
 
     export PS1="$ps1 $(ps_color 0)$ "
 }
 
-PROMPT_COMMAND="render_prompt; $PROMPT_COMMAND"
+if ! [[ "$PROMPT_COMMAND" =~ "render_prompt;" ]]; then
+    PROMPT_COMMAND="render_prompt; $PROMPT_COMMAND"
+fi
 render_prompt
 
