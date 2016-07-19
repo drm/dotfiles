@@ -38,7 +38,9 @@ function ps_color {
 # Assuming we're in a vendor dir of a project, where the vendor dir itself is not a git
 # checkout, but ignored from git:
 #
-#   foo/!(vendor/symfony/symfony): master $ _
+#   foo/vendor/symfony/symfony: master $ _
+#       ^^^^^^^^^^^^^^^^^^^^^^
+#       This part will be in a red color
 ##
 function render_prompt {
     local branch
