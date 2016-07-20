@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<openbox_menu xmlns="http://openbox.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://openbox.org/
+file:///usr/share/openbox/menu.xsd">
+
+<menu id="root-menu" label="Openbox 3">
+    <menu label="Screen" id="screen">
+        <item label="One screen">
+            <action name="Execute"><execute>~/.screenlayout/one.sh</execute></action>
+        </item>
+        <item label="Two screens">
+            <action name="Execute"><execute>~/.screenlayout/two.sh</execute></action>
+        </item>
+    </menu>
+    <item label="wicd">
+        <action name="Execute"><execute>wicd-gtk</execute></action>
+    </item>
+    <item label="Panel">
+        <action name="Execute"><execute>xfce4-panel</execute></action>
+    </item>
+    <separator />
+    <item label="PHPStorm">
+        <action name="Execute"><execute>phpstorm</execute></action>
+    </item>
+    <item label="Terminal emulator">
+        <action name="Execute"><execute>x-terminal-emulator</execute></action>
+    </item>
+    <item label="Mail">
+        <action name="Execute"><execute>icedove</execute></action>
+    </item>
+    <separator />
+    <item label="ObConf">
+        <action name="Execute"><execute>obconf</execute></action>
+    </item>
+    <item label="Reconfigure">
+        <action name="Reconfigure" />
+    </item>
+    <item label="Restart">
+        <action name="Restart" />
+    </item>
+    <separator />
+    <item label="Exit">
+        <action name="Exit" />
+    </item>
+</menu>
+
+
+</openbox_menu>
