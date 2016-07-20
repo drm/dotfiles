@@ -58,7 +58,7 @@ function render_prompt {
 
     if gitroot=$(git rev-parse --show-toplevel 2>/dev/null); then
         if ( cd $gitroot/../ && git rev-parse 2>/dev/null); then
-            ps1="$(ps_color 0)$(basename $(cd $gitroot/../ && git rev-parse --show-toplevel 2>/dev/null))$(ps_color "1;30")/.../$(ps_color 0)"
+            ps1="$(ps_color "1;0")$(basename $(cd $gitroot/../ && git rev-parse --show-toplevel 2>/dev/null))$(ps_color "1;30")/.../$(ps_color "1;0")"
         fi
 
         rootname="$(basename $gitroot)"
@@ -74,9 +74,9 @@ function render_prompt {
         ps1="$ps1$(ps_color "0;33"): " 
 
         declare $(git status --porcelain | \
-            awk 'BEGIN { num_changed=0; num_staged=0; FS="\n"} 
-                 { if ($1 ~ /^[AMDR]/) num_staged++; else num_changed++; } 
-                 END { print "num_changed="num_changed" num_staged="num_staged }'; \
+                 awk 'BEGIN { num_changed=0; num_staged=0; num_unknown=0; FS="\n"} 
+                 { if ($1 ~ /^[AMDR]/) num_staged++; else if ($1 ~ /^\?/) num_unknown++; else num_changed++; } 
+                 END { print "num_changed="num_changed" num_staged="num_staged" num_unknown="num_unknown }'; \
         )
 
         branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null); 
@@ -88,8 +88,8 @@ function render_prompt {
         if [[ "$branch" == "HEAD" ]]; then
             branch="detached"
             branch_color="1;31";
-        elif [[ $num_staged -gt 0 ]] || [[ $num_changed -gt 0 ]]; then
-            ps1="$ps1$(ps_color "1;32")${num_staged}$(ps_color 0)/$(ps_color "1;33")${num_changed} "
+        elif [[ $num_staged -gt 0 ]] || [[ $num_changed -gt 0 ]] || [[ $num_unknown -gt 0 ]]; then
+            ps1="$ps1$(ps_color "1;32")${num_staged}$(ps_color 0)/$(ps_color "1;33")${num_changed}$(ps_color 0)/$(ps_color "1;31")${num_unknown}$(ps_color 0) "
             branch_color="1;36";
         else
             ps1="$ps1$(ps_color "1;32")✓ ";
