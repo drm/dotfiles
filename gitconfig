@@ -13,6 +13,8 @@
 [alias]
     st = status
     ci = commit
+    r = rev-parse --show-toplevel
+    t = tag -a
 
 [color "status"]
     added = green bold
