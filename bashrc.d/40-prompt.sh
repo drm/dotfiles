@@ -64,13 +64,10 @@ function render_prompt {
         rootname="$(basename $gitroot)"
         rel=$(python -c "import os.path; print os.path.relpath('"$(pwd)"', '"$gitroot"')")
         if [[ "$rel" == "." ]]; then 
-            ps1="$ps1$rootname"
-        elif [[ "$(git ls-files)" == "" ]]; then
-            ps1="$ps1$rootname/$(ps_color "1;31")$rel"
-        else
-            ps1="$ps1$rootname/$(ps_color "1;0")$rel"
+            rel="/"
         fi
 
+        ps1="$ps1$rootname"
         ps1="$ps1$(ps_color "0;33"): " 
 
         declare $(git status --porcelain | \
@@ -95,12 +92,18 @@ function render_prompt {
             ps1="$ps1$(ps_color "1;32")✓ ";
             branch_color="1;32"
         fi;
-        ps1="$ps1$(ps_color "$branch_color")$branch$(ps_color 0)"
+        ps1="$ps1$(ps_color "$branch_color")$branch$(ps_color 0) "
         if [[ "$num_ahead" -gt 0 ]]; then
-            ps1="$ps1(+${num_ahead})";
+            ps1="$ps1(+${num_ahead}) ";
         fi
         if [[ "$num_behind" -gt 0 ]]; then
-            ps1="$ps1(-${num_behind})";
+            ps1="$ps1(-${num_behind}) ";
+        fi
+        
+        if [[ "$(git ls-files)" == "" ]]; then
+            ps1="$ps1$(ps_color "1;31")$rel"
+        else
+            ps1="$ps1$(ps_color "1;30")$rel"
         fi
     else
         ps1="$ps1$(ps_color 0)\w"
