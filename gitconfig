@@ -11,12 +11,13 @@
     followTags = 1
 
 [alias]
-    st = status
+    st = status -s
     ci = commit
     r = rev-parse --show-toplevel
     t = tag -a
     ff = merge --ff-only
     lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s (%ae) %Cgreen(%cr)%Creset' --abbrev-commit --date=relative --notes
+    drymerge = merge --no-commit --no-ff
 
 [color "status"]
     added = green bold
@@ -32,3 +33,4 @@
 
 [pull]
     ff = only
+    rebase = true
