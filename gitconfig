@@ -1,6 +1,6 @@
 [user]
     name = Gerard van Helden
-    email = drm@melp.nl
+    email = gerard@van-helden.name
 
 [core]
     excludesfile = /home/gerard/.gitignore_global
