@@ -35,6 +35,13 @@ bindsym $mod+n exec leafpad
 bindsym $mod+b exec x-www-browser
 bindsym $mod+l exec xscreensaver-command -lock
 
+bindsym XF86AudioMute exec amixer set Master toggle
+bindsym XF86AudioLowerVolume exec amixer set Master 2%-
+bindsym XF86AudioRaiseVolume exec amixer set Master 2%+
+bindsym XF86MonBrightnessDown exec xbacklight -dec 5
+bindsym XF86MonBrightnessUp exec xbacklight -inc 5
+
+
 # kill focused window
 bindsym $mod+q kill
 
