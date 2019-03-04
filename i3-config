@@ -69,7 +69,10 @@ bindsym $mod+Shift+k move down
 bindsym $mod+Shift+l move up
 bindsym $mod+Shift+semicolon move right
 
-bindsym $mod+comma move workspace to output left
+bindsym $mod+Shift+Ctrl+Up move workspace to output up
+bindsym $mod+Shift+Ctrl+Down move workspace to output down
+bindsym $mod+Shift+Ctrl+Left move workspace to output left
+bindsym $mod+Shift+Ctrl+Right move workspace to output right
 
 # alternatively, you can use the cursor keys:
 bindsym $mod+Shift+Left move left
