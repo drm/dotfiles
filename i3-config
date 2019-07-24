@@ -35,11 +35,18 @@ bindsym $mod+n exec mousepad
 bindsym $mod+b exec x-www-browser
 bindsym $mod+l exec xscreensaver-command -lock
 
+bindsym $mod+F1 exec /home/gerard/.screenlayout/single.sh
+bindsym $mod+F2 exec /home/gerard/.screenlayout/single-zoom.sh
+bindsym $mod+F3 exec /home/gerard/.screenlayout/single2.sh
+bindsym $mod+F4 exec /home/gerard/.screenlayout/dual.sh
+
+
 bindsym XF86AudioMute exec amixer set Master toggle
 bindsym XF86AudioLowerVolume exec amixer set Master 2%-
 bindsym XF86AudioRaiseVolume exec amixer set Master 2%+
 bindsym XF86MonBrightnessDown exec xbacklight -dec 1
 bindsym XF86MonBrightnessUp exec xbacklight -inc 1
+bindsym XF86WLAN exec wicd-client
 
 # kill focused window
 bindsym $mod+q kill

@@ -4,7 +4,6 @@
 
 [core]
     excludesfile = /home/gerard/.gitignore_global
-    autocrlf = input
 
 [push]
     default = simple
