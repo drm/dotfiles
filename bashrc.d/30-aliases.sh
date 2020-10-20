@@ -1,9 +1,15 @@
 alias x="startx"
 
-function i3mode {
-	if [ "$1" == "small" ]; then
-		sed -i 's/^font.*/font pango:DejaVu Sans Mono 8/' ~/.config/i3/config && i3-msg reload;
-	else
-		sed -i 's/^font.*/font pango:DejaVu Sans Mono 13/' ~/.config/i3/config && i3-msg reload;
-	fi
+enable_natural_scroll() {
+	local devid="`xinput | grep Synaptics | egrep -o 'id=[0-9]+' | cut -c 4-`"
+	local propid="`xinput list-props $devid | grep Natural | grep -v 'Default' | egrep -o '\([0-9]+\)' | tr -d '()'`"
+
+	xinput set-prop $devid $propid 1
 }
+
+reset_mouse() {
+	sudo modprobe -r psmouse
+	sleep 1 && sudo modprobe psmouse
+	( sleep 3 && enable_natural_scroll ) &
+}
+
