@@ -13,3 +13,6 @@ reset_mouse() {
 	( sleep 3 && enable_natural_scroll ) &
 }
 
+docker-clean() {
+	docker ps --format='{{ .Names }}' | xargs docker rm -f
+}
