@@ -53,8 +53,16 @@ function render_prompt {
     local num_ahead
     local num_behind
     local ps1
+    local parent_proc
 
     ps1=""
+
+    parent_proc="$(ps -o command= $PPID)"
+    case $parent_proc in
+	    vim)
+		    ps1="$(ps_color "1;30")($parent_proc) $(ps_color "1;0")"
+	    ;;
+    esac
 
     if gitroot=$(git rev-parse --show-toplevel 2>/dev/null); then
         if ( cd $gitroot/../ && git rev-parse 2>/dev/null); then
