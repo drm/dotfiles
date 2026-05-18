@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh FS-WATCH alert count every 30s
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=30s
+AccuracySec=5s
+Persistent=false
+
+[Install]
+WantedBy=timers.target

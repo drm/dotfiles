@@ -1,0 +1,8 @@
+[Unit]
+Description=Refresh FS-WATCH alert count cache for i3status
+Documentation=See dotfiles/bin/fs-watch-status and guardrails.sh disk-pressure-watch.service
+
+[Service]
+Type=oneshot
+ExecStart=%h/bin/fs-watch-status
+Nice=10

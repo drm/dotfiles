@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+#
+# fs-watch-status — write FS-WATCH alert count to a cache file for i3status.
+#
+# Companion to the disk-pressure-watch systemd service installed by
+# guardrails.sh, which captures kernel ext4/dm-crypt warnings and re-logs them
+# as user.crit FS-WATCH messages. This script counts those messages over the
+# last 24h and writes a one-line summary to the cache file. i3status picks it
+# up via a `read_file` block (see install.sh output for the snippet).
+#
+# Designed to run on a 30s user-systemd timer. Failure is silent: empty file
+# on any error so the bar shows nothing rather than a confusing partial state.
+
+set -uo pipefail
+
+CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/fs-watch.status"
+mkdir -p "$(dirname "$CACHE")"
+
+# journalctl needs adm or systemd-journal group membership to see system
+# messages from the disk-pressure-watch service (which runs as root). If we
+# can't read system messages, we get nothing back — that's correctly silent.
+N="$(journalctl --since '24 hours ago' -p crit --grep 'FS-WATCH' --no-pager 2>/dev/null \
+        | grep -c 'FS-WATCH' || true)"
+
+# Colors match i3status defaults (color_good=#00FF00, color_bad=#FF0000)
+# so the FS-WATCH block visually pairs with other built-in red/green states
+# (W: down, E: down, battery low, etc.) without standing out as off-palette.
+if [ -z "$N" ] || [ "$N" = "0" ]; then
+    printf '<span color="#00FF00">FS OK</span>\n' > "$CACHE"
+else
+    printf '<span color="#FF0000">FS-WATCH: %d alerts (24h)</span>\n' "$N" > "$CACHE"
+fi
