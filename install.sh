@@ -64,3 +64,15 @@ NOTE: $USER is not in 'systemd-journal' — fs-watch-status can't see
           usermod -aG systemd-journal $USER
 EOF
 fi
+
+# chromium hangs ~25s at first navigation while it probes for a Secret
+# Service backend that isn't there. Drop a /etc/chromium.d/ snippet that
+# pre-sets --password-store=basic so chromium skips the probe.
+if [ ! -f /etc/chromium.d/password-store ]; then
+    cat <<EOF
+
+NOTE: /etc/chromium.d/password-store is missing
+      (causes ~25s chromium startup hang). Run once as root:
+          su -c "install -m 644 $ROOT/etc/chromium.d/password-store /etc/chromium.d/"
+EOF
+fi
