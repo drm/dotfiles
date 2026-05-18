@@ -70,7 +70,7 @@ function render_prompt {
         fi
 
         rootname="$(basename $gitroot)"
-        rel=$(python -c "import os.path; print os.path.relpath('"$(pwd)"', '"$gitroot"')")
+	rel=$(python3 -c "import os.path; print(os.path.relpath('"$(pwd)"', '"$gitroot"'))")
         if [[ "$rel" == "." ]]; then 
             rel="/"
         fi
