@@ -105,7 +105,7 @@ function render_prompt {
             (( staged    > 0 )) && sc=$_PC_GREEN  || sc=$_PC_DIM
             (( changed   > 0 )) && cc=$_PC_YELLOW || cc=$_PC_DIM
             (( untracked > 0 )) && uc=$_PC_RED    || uc=$_PC_DIM
-            ps1+="${sc}${staged}${_PC_RESET}/${cc}${changed}${_PC_RESET}/${uc}${untracked}${_PC_RESET} "
+            ps1+="${sc}${staged}${_PC_DIM}/${cc}${changed}${_PC_DIM}/${uc}${untracked}${_PC_RESET} "
             branch_color=$_PC_CYAN
         else
             ps1+="${_PC_GREEN}✓ "
