@@ -101,7 +101,11 @@ function render_prompt {
             branch="detached"
             branch_color=$_PC_RED
         elif (( staged + changed + untracked > 0 )); then
-            ps1+="${_PC_GREEN}${staged}${_PC_RESET}/${_PC_YELLOW}${changed}${_PC_RESET}/${_PC_RED}${untracked}${_PC_RESET} "
+            local sc cc uc
+            (( staged    > 0 )) && sc=$_PC_GREEN  || sc=$_PC_DIM
+            (( changed   > 0 )) && cc=$_PC_YELLOW || cc=$_PC_DIM
+            (( untracked > 0 )) && uc=$_PC_RED    || uc=$_PC_DIM
+            ps1+="${sc}${staged}${_PC_RESET}/${cc}${changed}${_PC_RESET}/${uc}${untracked}${_PC_RESET} "
             branch_color=$_PC_CYAN
         else
             ps1+="${_PC_GREEN}✓ "
