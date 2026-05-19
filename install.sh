@@ -11,7 +11,7 @@ links[".gitconfig"]="gitconfig"
 links[".config/i3/config"]="i3-config"
 links[".config/i3status/config"]="i3status.conf"
 links[".vimrc"]="vimrc"
-links[".xinitc"]="xinitrc"
+links[".xinitrc"]="xinitrc"
 links[".bash_aliases"]="bash_aliases"
 
 for f in screenlayout/*.sh; do
