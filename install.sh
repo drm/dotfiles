@@ -13,6 +13,7 @@ links[".config/i3status/config"]="i3status.conf"
 links[".vimrc"]="vimrc"
 links[".xinitrc"]="xinitrc"
 links[".bash_aliases"]="bash_aliases"
+links[".claude/CLAUDE.md"]="claude.md"
 
 for f in screenlayout/*.sh; do
     links[".${f}"]="$f"
