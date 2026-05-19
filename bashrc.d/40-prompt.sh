@@ -116,19 +116,21 @@ function render_prompt {
         (( ahead  > 0 )) && ps1+="(+${ahead}) "
         (( behind > 0 )) && ps1+="(-${behind}) "
 
-        # Is the current directory ignored by git? (vendor/, build/, etc.)
-        # `git check-ignore` does exactly this check; the old `git ls-files`
-        # listed the whole repo and never matched the docstring's intent.
-        if [[ $rel != "/" ]] && git check-ignore -q . 2>/dev/null; then
-            ps1+="${_PC_RED}${rel}"
-        else
-            ps1+="${_PC_DIM}${rel}"
+        # At the project root the rel is just "/", which reads as decoration —
+        # skip it. Otherwise render the path, in red when the dir is
+        # gitignored (vendor/, build/, etc.), dim otherwise.
+        if [[ $rel != "/" ]]; then
+            if git check-ignore -q . 2>/dev/null; then
+                ps1+="${_PC_RED}${rel}"
+            else
+                ps1+="${_PC_DIM}${rel}"
+            fi
         fi
     else
         ps1+="${_PC_RESET}\w"
     fi
 
-    PS1="${ps1} ${_PC_RESET}\$ "
+    PS1="${ps1% } ${_PC_RESET}\$ "
 }
 
 if [[ "$PROMPT_COMMAND" != *render_prompt* ]]; then
