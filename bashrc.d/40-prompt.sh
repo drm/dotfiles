@@ -1,127 +1,133 @@
 ##
-# Helper function to print a color escape code within a prompt.
-##
-function ps_color {
-    local color=$1
-    echo "\[\e[${color}m\]"
-}
-
-
-##
 # Renders the prompt, as follows:
 # If in a git working tree:
-# 
-#   project_dir/relative_path: [num_changes/num_staged] branch ([+num_ahead]-[num_behind]) $ 
 #
-#   - `project_dir`: the basename of the directory the `.git` folder is in (i.e. the root of the project)
+#   project_dir/relative_path: [num_staged/num_changed/num_untracked] branch ([+num_ahead]-[num_behind]) $
+#
+#   - `project_dir`: the basename of the directory the `.git` folder is in
 #   - `relative_path`: the path relative to the root of the git project
-#   - `num_changes`: The number of changes that are not staged yet
-#   - `num_staged`: The number of changes that are staged
-#   - `branch-name`: The branch the working tree is currently on.
-#   - `num_ahead`: The number of commits that were not yet merged with the remote (i.e.: not yet pushed)
-#   - `num_behind`: The number of commits that are not yet merged with the local (i.e.: not yet pulled)
-# 
-# If the branch is clean (i.e., no uncommitted or unstaged changes), a checkmark is shown before the branch name
-# If the checkout is detached, a red `detached` message is shown
-# If not in a git working tree, the working dir is printed in stead of all the git info
+#   - `num_staged`: changes staged for commit (X column of porcelain)
+#   - `num_changed`: changes in the working tree (Y column of porcelain)
+#   - `num_untracked`: untracked files
+#   - `branch`: current branch, or "detached" in red if HEAD is detached
+#   - `num_ahead`/`num_behind`: commits ahead/behind upstream tracking branch
 #
-# Examples:
-# Assuming we're in the 'src' folder of a clean project, checked out in `~/projects/foo`:
-#  
-#   foo/src: ✓ master $ _
-#
-# Assuming we're in the 'src' folder of a project, in a branch called 'hotfix/bar', 
-# 2 commits ahead of origin, with 1 unstaged and 3 uncommitted files:
-#
-#   foo/src: 3/1 hotfix/bar (+2) $ _
-#
-# Assuming we're in a vendor dir of a project, where the vendor dir itself is not a git
-# checkout, but ignored from git:
-#
-#   foo/vendor/symfony/symfony: master $ _
-#       ^^^^^^^^^^^^^^^^^^^^^^
-#       This part will be in a red color
+# If the working tree is clean a checkmark is shown before the branch name.
+# If the current directory is ignored by git (e.g. a vendor/ subdir), the
+# relative path is colored red.
+# If gitroot's parent is itself inside another git repo (nested checkout),
+# the outer project name is shown as a "outer/..." prefix.
+# If the parent process is vim, "(vim)" is prefixed.
 ##
+
+# Precomputed escape codes. Plain assignments so re-sourcing ~/.bashrc is safe.
+_PC_RESET=$'\[\e[0m\]'
+_PC_BOLD=$'\[\e[1;0m\]'
+_PC_DIM=$'\[\e[1;30m\]'
+_PC_GREEN=$'\[\e[1;32m\]'
+_PC_YELLOW=$'\[\e[1;33m\]'
+_PC_RED=$'\[\e[1;31m\]'
+_PC_CYAN=$'\[\e[1;36m\]'
+_PC_PATH=$'\[\e[0;33m\]'
+
 function render_prompt {
-    local branch
-    local remote
-    local gitroot
-    local rootname
-    local status
-    local num_changed
-    local num_staged
-    local num_ahead
-    local num_behind
-    local ps1
-    local parent_proc
+    local ps1=""
+    local gitroot rel rootname branch upstream ab outer_root pname line porcelain
+    local ahead=0 behind=0 staged=0 changed=0 untracked=0
+    local branch_color xy
 
-    ps1=""
-
-    parent_proc="$(ps -o command= $PPID)"
-    case $parent_proc in
-	    vim)
-		    ps1="$(ps_color "1;30")($parent_proc) $(ps_color "1;0")"
-	    ;;
-    esac
-
-    if gitroot=$(git rev-parse --show-toplevel 2>/dev/null); then
-        if ( cd $gitroot/../ && git rev-parse 2>/dev/null); then
-            ps1="$(ps_color "1;0")$(basename $(cd $gitroot/../ && git rev-parse --show-toplevel 2>/dev/null))$(ps_color "1;30")/.../$(ps_color "1;0")"
-        fi
-
-        rootname="$(basename $gitroot)"
-	rel=$(python3 -c "import os.path; print(os.path.relpath('"$(pwd)"', '"$gitroot"'))")
-        if [[ "$rel" == "." ]]; then 
-            rel="/"
-        fi
-
-        ps1="$ps1$rootname"
-        ps1="$ps1$(ps_color "0;33"): " 
-
-        declare $(git status --porcelain | \
-                 awk 'BEGIN { num_changed=0; num_staged=0; num_unknown=0; FS="\n"} 
-                 { if ($1 ~ /^[AMDR]/) num_staged++; else if ($1 ~ /^\?/) num_unknown++; else num_changed++; } 
-                 END { print "num_changed="num_changed" num_staged="num_staged" num_unknown="num_unknown }'; \
-        )
-
-        branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null); 
-        if remote=$(git config branch.${branch}.remote); then
-            tracking_branch="${remote}/${branch}"
-            num_ahead=$(git rev-list "${tracking_branch}..${branch}" --count 2>/dev/null)
-            num_behind=$(git rev-list "${branch}..${tracking_branch}" --count 2>/dev/null)
-        fi
-        if [[ "$branch" == "HEAD" ]]; then
-            branch="detached"
-            branch_color="1;31";
-        elif [[ $num_staged -gt 0 ]] || [[ $num_changed -gt 0 ]] || [[ $num_unknown -gt 0 ]]; then
-            ps1="$ps1$(ps_color "1;32")${num_staged}$(ps_color 0)/$(ps_color "1;33")${num_changed}$(ps_color 0)/$(ps_color "1;31")${num_unknown}$(ps_color 0) "
-            branch_color="1;36";
-        else
-            ps1="$ps1$(ps_color "1;32")✓ ";
-            branch_color="1;32"
-        fi;
-        ps1="$ps1$(ps_color "$branch_color")$branch$(ps_color 0) "
-        if [[ "$num_ahead" -gt 0 ]]; then
-            ps1="$ps1(+${num_ahead}) ";
-        fi
-        if [[ "$num_behind" -gt 0 ]]; then
-            ps1="$ps1(-${num_behind}) ";
-        fi
-        
-        if [[ "$(git ls-files)" == "" ]]; then
-            ps1="$ps1$(ps_color "1;31")$rel"
-        else
-            ps1="$ps1$(ps_color "1;30")$rel"
-        fi
-    else
-        ps1="$ps1$(ps_color 0)\w"
+    # Parent process prefix (vim/nvim/etc.) — read /proc/$PPID/comm,
+    # no fork of `ps`. `comm` is just the executable name (no args), so the
+    # case matches reliably even when the editor was launched with arguments.
+    if [[ -r /proc/$PPID/comm ]]; then
+        IFS= read -r pname < /proc/$PPID/comm
+        case $pname in
+            vim|nvim|vi|view)
+                ps1+="${_PC_DIM}(${pname}) ${_PC_BOLD}"
+                ;;
+        esac
     fi
 
-    export PS1="$ps1 $(ps_color 0)$ "
+    # Gather branch + ahead/behind + per-file status in a single git call.
+    # porcelain=v2 emits machine-readable "# branch.*" header lines plus one
+    # line per changed/untracked/unmerged file.
+    if porcelain=$(git status --porcelain=v2 --branch 2>/dev/null); then
+        while IFS= read -r line; do
+            case $line in
+                '# branch.head '*)
+                    branch=${line#'# branch.head '}
+                    ;;
+                '# branch.upstream '*)
+                    upstream=${line#'# branch.upstream '}
+                    ;;
+                '# branch.ab '*)
+                    ab=${line#'# branch.ab '}      # "+N -M"
+                    ahead=${ab%% *}; ahead=${ahead#+}
+                    behind=${ab##* };  behind=${behind#-}
+                    ;;
+                '1 '*|'2 '*)
+                    # "1 XY ..." / "2 XY ..." — index (X) + worktree (Y) status.
+                    # A file modified-and-restaged counts as both staged AND
+                    # changed; the previous awk script only looked at X.
+                    xy=${line:2:2}
+                    [[ ${xy:0:1} != '.' ]] && (( staged++ ))
+                    [[ ${xy:1:1} != '.' ]] && (( changed++ ))
+                    ;;
+                'u '*)
+                    (( changed++ ))
+                    ;;
+                '? '*)
+                    (( untracked++ ))
+                    ;;
+            esac
+        done <<<"$porcelain"
+
+        gitroot=$(git rev-parse --show-toplevel 2>/dev/null)
+        rootname=${gitroot##*/}
+
+        # Nested checkout: is gitroot itself inside another working tree?
+        if outer_root=$(git -C "$gitroot/.." rev-parse --show-toplevel 2>/dev/null); then
+            ps1+="${_PC_BOLD}${outer_root##*/}${_PC_DIM}/.../${_PC_BOLD}"
+        fi
+
+        # Relative path via bash parameter expansion — no python.
+        rel=${PWD#"$gitroot"}
+        rel=${rel#/}
+        [[ -z $rel ]] && rel="/"
+
+        ps1+="${rootname}${_PC_PATH}: "
+
+        if [[ $branch == '(detached)' ]]; then
+            branch="detached"
+            branch_color=$_PC_RED
+        elif (( staged + changed + untracked > 0 )); then
+            ps1+="${_PC_GREEN}${staged}${_PC_RESET}/${_PC_YELLOW}${changed}${_PC_RESET}/${_PC_RED}${untracked}${_PC_RESET} "
+            branch_color=$_PC_CYAN
+        else
+            ps1+="${_PC_GREEN}✓ "
+            branch_color=$_PC_GREEN
+        fi
+
+        ps1+="${branch_color}${branch}${_PC_RESET} "
+        (( ahead  > 0 )) && ps1+="(+${ahead}) "
+        (( behind > 0 )) && ps1+="(-${behind}) "
+
+        # Is the current directory ignored by git? (vendor/, build/, etc.)
+        # `git check-ignore` does exactly this check; the old `git ls-files`
+        # listed the whole repo and never matched the docstring's intent.
+        if [[ $rel != "/" ]] && git check-ignore -q . 2>/dev/null; then
+            ps1+="${_PC_RED}${rel}"
+        else
+            ps1+="${_PC_DIM}${rel}"
+        fi
+    else
+        ps1+="${_PC_RESET}\w"
+    fi
+
+    PS1="${ps1} ${_PC_RESET}\$ "
 }
 
-if ! [[ "$PROMPT_COMMAND" =~ "render_prompt;" ]]; then
+if [[ "$PROMPT_COMMAND" != *render_prompt* ]]; then
     PROMPT_COMMAND="render_prompt; $PROMPT_COMMAND"
 fi
 render_prompt
-
