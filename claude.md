@@ -6,6 +6,9 @@
   comment only when something is genuinely confusing; otherwise no comment is
   better than a redundant one. Shorter = clearer = better. Best of all is
   self-explanatory code that needs no comment.
+- No verbose comments. If a comment is truly needed, keep it to one short line —
+  never a multi-line block of rationale. Explanation of *why* belongs in the
+  commit message, not the source.
 - Applies to every repo, every project.
 
 ## Git commits
