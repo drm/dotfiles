@@ -48,6 +48,15 @@ bindsym XF86MonBrightnessDown exec xbacklight -dec 1
 bindsym XF86MonBrightnessUp exec xbacklight -inc 1
 bindsym XF86WLAN exec wicd-client
 
+bindsym XF86AudioPlay exec mpc toggle
+bindsym XF86AudioNext exec mpc next
+bindsym XF86AudioPrev exec mpc prev
+bindsym XF86AudioStop exec mpc stop
+bindsym $mod+p exec mpc toggle
+bindsym $mod+comma exec mpc prev
+bindsym $mod+period exec mpc next
+bindsym $mod+m exec sonata
+
 # kill focused window
 bindsym $mod+q kill
 

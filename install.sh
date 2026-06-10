@@ -10,6 +10,7 @@ declare -A links
 links[".gitconfig"]="gitconfig"
 links[".config/i3/config"]="i3-config"
 links[".config/i3status/config"]="i3status.conf"
+links[".config/mpd/mpd.conf"]="mpd.conf"
 links[".vimrc"]="vimrc"
 links[".xinitrc"]="xinitrc"
 links[".bash_aliases"]="bash_aliases"
@@ -50,6 +51,11 @@ if command -v systemctl >/dev/null 2>&1 && systemctl --user list-units >/dev/nul
             && echo "  enabled+started: $name (user)" \
             || echo "  WARN: failed to enable $name — start manually"
     done
+    if command -v mpd >/dev/null 2>&1; then
+        systemctl --user enable --now mpd.service \
+            && echo "  enabled+started: mpd.service (user)" \
+            || echo "  WARN: failed to enable mpd.service — start manually"
+    fi
 else
     echo ""
     echo "NOTE: systemd --user not reachable (no graphical session, or lingering disabled)."
