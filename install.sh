@@ -83,3 +83,12 @@ NOTE: /etc/chromium.d/password-store is missing
           su -c "install -m 644 $ROOT/etc/chromium.d/password-store /etc/chromium.d/"
 EOF
 fi
+
+if [ ! -f /etc/modprobe.d/nobeep.conf ]; then
+    cat <<EOF
+
+NOTE: /etc/modprobe.d/nobeep.conf is missing (PC-speaker beeps). Run once
+      as root, then reboot or 'rmmod pcspkr':
+          su -c "install -m 644 $ROOT/etc/modprobe.d/nobeep.conf /etc/modprobe.d/"
+EOF
+fi
