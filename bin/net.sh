@@ -10,7 +10,7 @@ dhclient="sudo dhclient -pf /var/run/dhclient.pid -lf /var/run/dhclient.lease"
 mkdir -p "$CONF_DIR"
 
 usage() {
-	echo "Usage: $0 wifi [name]   connect to a saved wifi network (prompts if no name)"
+	echo "Usage: $0 wifi [name]   connect to a saved wifi network (first saved if no name)"
 	echo "       $0 add           scan, enter a password and save a new network"
 	echo "       $0 eth           connect via ethernet"
 	exit 1
@@ -25,6 +25,15 @@ teardown() {
 
 list_configs() {
 	find "$CONF_DIR" -maxdepth 1 -name '*.conf' -printf '%f\n' 2>/dev/null | sed 's/\.conf$//' | sort
+}
+
+config_ssid() {
+	sed -n 's/^[[:space:]]*ssid="\(.*\)"$/\1/p' "$CONF_DIR/$1.conf"
+}
+
+scan_ssids() {
+	sudo ip link set "$IFACE" up
+	sudo iw dev "$IFACE" scan | sed -n 's/^[[:space:]]*SSID: //p' | grep -v '^$' | sort -u
 }
 
 slugify() {
@@ -66,16 +75,30 @@ connect_eth() {
 connect_wifi() {
 	local name="$1" conf
 	if [ -z "$name" ]; then
-		local configs
-		mapfile -t configs < <(list_configs)
-		if [ "${#configs[@]}" -eq 0 ]; then
-			echo "No saved networks. Use '$0 add' to create one."
-			exit 1
+		echo "Scanning for known networks on $IFACE..."
+		local in_range available cfg
+		in_range="$(scan_ssids)"
+		mapfile -t available < <(
+			while read -r cfg; do
+				grep -qxF "$(config_ssid "$cfg")" <<<"$in_range" && echo "$cfg"
+			done < <(list_configs)
+		)
+		if [ "${#available[@]}" -eq 0 ]; then
+			local reply
+			read -r -p "No known networks in range. Add one now? [Y/n] " reply
+			case "$reply" in
+				[Nn]*) exit 1 ;;
+				*) add_network; return ;;
+			esac
+		elif [ "${#available[@]}" -eq 1 ]; then
+			name="${available[0]}"
+			echo "Connecting to '$name'"
+		else
+			echo "Select a network:"
+			select name in "${available[@]}"; do
+				[ -n "$name" ] && break
+			done
 		fi
-		echo "Select a network:"
-		select name in "${configs[@]}"; do
-			[ -n "$name" ] && break
-		done
 	fi
 
 	conf="$CONF_DIR/$name.conf"
@@ -97,10 +120,9 @@ connect_wifi() {
 }
 
 add_network() {
-	sudo ip link set "$IFACE" up
 	echo "Scanning for networks on $IFACE..."
 	local ssids
-	mapfile -t ssids < <(sudo iw dev "$IFACE" scan | sed -n 's/^[[:space:]]*SSID: //p' | grep -v '^$' | sort -u)
+	mapfile -t ssids < <(scan_ssids)
 	if [ "${#ssids[@]}" -eq 0 ]; then
 		echo "No networks found."
 		exit 1
