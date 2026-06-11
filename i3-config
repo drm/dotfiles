@@ -44,9 +44,10 @@ bindsym $mod+F5 exec /home/gerard/.screenlayout/tv.sh
 bindsym XF86AudioMute exec amixer set Master toggle
 bindsym XF86AudioLowerVolume exec amixer set Master 2%-
 bindsym XF86AudioRaiseVolume exec amixer set Master 2%+
-bindsym XF86MonBrightnessDown exec xbacklight -dec 1
-bindsym XF86MonBrightnessUp exec xbacklight -inc 1
-bindsym XF86WLAN exec wicd-client
+bindsym XF86MonBrightnessDown exec brightnessctl set 150-
+bindsym XF86MonBrightnessUp exec brightnessctl set 150+
+bindsym shift+XF86MonBrightnessDown exec brightnessctl set 500-
+bindsym shift+XF86MonBrightnessUp exec brightnessctl set 500+
 
 bindsym XF86AudioPlay exec mpc toggle
 bindsym XF86AudioNext exec mpc next
