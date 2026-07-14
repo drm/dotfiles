@@ -214,3 +214,9 @@ bindsym $mod+equal mode "resize"
 bar {
         status_command i3status
 }
+
+# Recomb rig windows map straight onto their workspaces (no focus steal on
+# launch; rig.sh's post-launch moves become no-ops).
+assign [class="^Mixxx$"] workspace number 11
+assign [class="^Hydrogen$"] workspace number 12
+assign [class="^SuperCollider$"] workspace number 12
