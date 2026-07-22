@@ -2,13 +2,11 @@
 
 ## Code comments
 
-- Don't comment obvious things — the code itself is the documentation. Add a
-  comment only when something is genuinely confusing; otherwise no comment is
-  better than a redundant one. Shorter = clearer = better. Best of all is
+- Avoid prose in comments. Comment only non-obvious things; never comment
+  history or evolution ("X used to do Y", "replaced Z because...") — that's
+  what git is for. Rationale belongs in the commit message, not the source.
+- If a comment is truly needed, one short line. Best of all is
   self-explanatory code that needs no comment.
-- No verbose comments. If a comment is truly needed, keep it to one short line —
-  never a multi-line block of rationale. Explanation of *why* belongs in the
-  commit message, not the source.
 - Applies to every repo, every project.
 
 ## Git commits
@@ -20,10 +18,15 @@
 
 ## Remote / detached execution
 
-- Whenever something runs remotely in an SSH session but detached (a long job,
-  background process, anything meant to outlive the SSH connection), ALWAYS run
-  it inside `tmux`. Never rely on `nohup &`, a bare `docker run -d`, or the
-  connection staying alive — a dropped SSH session (or a laptop power loss) must
-  not lose or orphan the work.
-- If `tmux` is not installed on the remote, install it first, then proceed.
+- When *you* manually start a long-running job in an interactive SSH session that
+  is meant to outlive that connection (a long build, migration, data job —
+  anything you'd otherwise `nohup &` or just leave running), run it inside
+  `tmux`/`screen` so a dropped SSH session or laptop power loss can't orphan or
+  lose it. Install tmux first if absent. Never rely on `nohup &`, a bare
+  `docker run -d`, or the connection staying alive.
+- This does NOT apply to remote commands that a tool/framework runs
+  **synchronously and owns the lifecycle of** — e.g. install-util / Ansible
+  executing a provisioning script over SSH, or an `ssh host cmd` that a script
+  waits on. Those are foreground steps the orchestrator manages; wrapping them in
+  tmux fights the model. Let the tool drive it.
   Applies to every repo, every project.

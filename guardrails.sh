@@ -91,7 +91,7 @@ After=systemd-journald.service
 
 [Service]
 Type=simple
-ExecStart=/bin/sh -c 'journalctl -kf -g "EXT4-fs|dm-crypt|aborting|Buffer I/O error|XFS.*error" --since now | while IFS= read -r line; do logger -p user.crit "FS-WATCH: $line"; done'
+ExecStart=/bin/sh -c 'journalctl -kf -g "EXT4-fs error|EXT4-fs warning|emounting filesystem read-only|I/O error|dm-crypt|aborting|XFS.*error" --since now | while IFS= read -r line; do logger -p user.crit "FS-WATCH: $line"; done'
 Restart=always
 RestartSec=5
 
