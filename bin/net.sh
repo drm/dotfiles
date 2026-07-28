@@ -20,6 +20,8 @@ teardown() {
 	sudo killall wpa_supplicant || true
 	sudo killall dhclient || true
 	sudo ip route del default || true
+	sudo ip addr flush dev "$IFACE" || true
+	sudo ip link set "$IFACE" down || true
 	sudo rm -f "/var/run/wpa_supplicant/$IFACE"
 }
 
