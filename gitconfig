@@ -21,6 +21,7 @@
     reflg = reflog --pretty=format:'%Cred%h%Creset %Cgreen(%cd)%Creset %<(20,trunc)%ae %C(yellow)%d%Creset%s' --date=local --abbrev-commit --notes
     drymerge = merge --no-commit --no-ff
     tg = for-each-ref refs/tags/ --count=10 --sort=-v:refname --format="%(refname:short)"
+    dc = diff --cached
 
 [color "status"]
     added = green bold

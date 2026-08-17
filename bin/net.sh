@@ -25,6 +25,11 @@ teardown() {
 	sudo rm -f "/var/run/wpa_supplicant/$IFACE"
 }
 
+# SLAAC IPv6 breaks VLC->Chromecast casting (receiver won't fetch v6 media URLs)
+disable_ipv6() {
+	sudo sysctl -qw "net.ipv6.conf.$1.disable_ipv6=1"
+}
+
 list_configs() {
 	find "$CONF_DIR" -maxdepth 1 -name '*.conf' -printf '%f\n' 2>/dev/null | sed 's/\.conf$//' | sort
 }
@@ -71,6 +76,7 @@ connect_eth() {
 	iface="$(detect_eth)" || { echo "No wired interface with a carrier (cable) found."; exit 1; }
 	echo "Using $iface"
 	sudo ip addr flush dev "$iface"
+	disable_ipv6 "$iface"
 	$dhclient "$iface"
 }
 
@@ -118,6 +124,7 @@ connect_wifi() {
 	done
 	echo ""
 	sudo ip addr flush dev "$IFACE"
+	disable_ipv6 "$IFACE"
 	$dhclient "$IFACE"
 }
 
