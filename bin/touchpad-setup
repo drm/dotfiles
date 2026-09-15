@@ -1,0 +1,4 @@
+#!/bin/sh
+xinput list --name-only | grep -iE 'synaptics|touchpad' | while read -r dev; do
+	xinput set-prop "$dev" 'libinput Natural Scrolling Enabled' 1
+done

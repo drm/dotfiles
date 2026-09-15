@@ -28,6 +28,10 @@ font pango:DejaVu Sans Mono 8
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
+# $mod+Alt+left drag resizes like $mod+right drag
+bindsym --whole-window $mod+Mod1+button1 exec --no-startup-id ~/bin/drag-resize
+
+exec --no-startup-id ~/bin/touchpad-setup
 
 # start a terminal
 bindsym $mod+t exec i3-sensible-terminal

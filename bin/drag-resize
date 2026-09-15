@@ -1,0 +1,11 @@
+#!/bin/sh
+# Hold a synthetic right button while the left button is down, so i3 sees
+# floating_modifier+right-drag and resizes the window under the pointer
+button1_down() {
+	xinput list --short | grep 'slave  pointer' | grep -o 'id=[0-9]*' | cut -c4- | while read -r id; do
+		xinput query-state "$id"
+	done | grep -q 'button\[1\]=down'
+}
+xdotool mousedown 3
+while button1_down; do sleep 0.02; done
+xdotool mouseup 3
