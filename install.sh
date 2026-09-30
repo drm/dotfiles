@@ -20,10 +20,28 @@ for f in screenlayout/*.sh; do
     links[".${f}"]="$f"
 done
 
+for f in dbus-1/services/*.service; do
+    links[".local/share/${f}"]="$f"
+done
+
+for f in autostart/*.desktop; do
+    links[".config/${f}"]="$f"
+done
+
 for k in "${!links[@]}"; do
     mkdir -p "$(dirname "$HOME/${k}")"
     ln -sfv "$ROOT/${links[$k]}" "$HOME/${k}"
 done
+
+# ── gnupg/* → $GNUPGHOME/* ───────────────────────────────────────────────────
+gnupghome="${GNUPGHOME:-$HOME/.gnupg}"
+[ -d /mnt/vault/gnupg ] && gnupghome=/mnt/vault/gnupg
+mkdir -p "$gnupghome"
+chmod 700 "$gnupghome"
+for f in "$ROOT"/gnupg/*; do
+    ln -sfv "$f" "$gnupghome/$(basename "$f")"
+done
+gpgconf --reload gpg-agent 2>/dev/null || true
 
 # ── bin/* → ~/bin/* ──────────────────────────────────────────────────────────
 mkdir -p "$HOME/bin"
@@ -51,6 +69,11 @@ if command -v systemctl >/dev/null 2>&1 && systemctl --user list-units >/dev/nul
             && echo "  enabled+started: $name (user)" \
             || echo "  WARN: failed to enable $name — start manually"
     done
+    systemctl --user mask --now \
+        gnome-keyring-daemon.socket gnome-keyring-daemon.service \
+        gcr-ssh-agent.socket gcr-ssh-agent.service \
+        && echo "  masked: gnome-keyring + gcr-ssh-agent (user)" \
+        || echo "  WARN: failed to mask gnome-keyring units"
     if command -v mpd >/dev/null 2>&1; then
         systemctl --user enable --now mpd.service \
             && echo "  enabled+started: mpd.service (user)" \
