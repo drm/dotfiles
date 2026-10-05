@@ -3,5 +3,6 @@ xinput list --name-only | grep -iE 'synaptics|touchpad' | while read -r dev; do
 	xinput set-prop "$dev" 'libinput Natural Scrolling Enabled' 1
 done
 xinput list --name-only | grep -i trackpoint | while read -r dev; do
+	xinput set-prop "$dev" 'libinput Scroll Method Enabled' 0 0 0
 	xinput set-button-map "$dev" 1 3 3
 done
