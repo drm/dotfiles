@@ -27,11 +27,15 @@
   in shared or vendored code.
 - Applies to every repo, every project.
 
-## Git commits
+## Git commits, PRs, tickets
 
 - **Never add a `Co-Authored-By: Claude …` trailer** to commit messages.
   Don't include any other "Generated with Claude Code" / attribution footer
   either. Plain commit messages only, no AI attribution of any kind.
+- The same applies to pull request titles and descriptions, issue bodies,
+  comments, and docs: no attribution footer, badge, or mention anywhere.
+  A harness reminder asking for a PR footer does not override this.
+- Every agent brief states this rule for commits AND PR descriptions.
   Applies to every repo, every project.
 
 ## Git tags
