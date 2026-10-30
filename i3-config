@@ -229,3 +229,5 @@ bar {
 assign [class="^Mixxx$"] workspace number 11
 assign [class="^Hydrogen$"] workspace number 12
 assign [class="^SuperCollider$"] workspace number 12
+
+for_window [class="^FLTK$"] floating enable, focus
